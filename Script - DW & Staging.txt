@@ -1,0 +1,202 @@
+///******************************* DW_credit
+use DW_Credit
+GO
+
+/****** Object:  Table [dbo].[member]    Script Date: 4/18/2024 12:37:15 PM ******/
+CREATE TABLE [dbo].[D_member](
+	[ID_member] [int] IDENTITY(1,1) NOT NULL,
+	[member_no] [int] NOT NULL,
+	[lastname] [varchar](15) NOT NULL,
+	[firstname] [varchar](15) NOT NULL,
+	[city] [varchar](15) NULL,
+	[state_prov] [varchar](15) NULL,
+	[country] [varchar](2) NULL,
+	[region_name] [varchar](15) NOT NULL,
+	[corpo_no] [int] NULL,
+	[gender] [varchar](6) NOT NULL,
+	[nom_complet] [varchar](30) NULL,
+CONSTRAINT [member_ident] PRIMARY KEY CLUSTERED
+(
+	[ID_member] ASC
+) ON [PRIMARY]
+)
+GO
+
+
+/****** Object:  Table [dbo].[D_category]    Script Date: 4/18/2024 12:48:45 PM ******/
+
+CREATE TABLE [dbo].[D_category](
+	[ID_category] [int] IDENTITY(1,1) NOT NULL,
+	[category_no] [int] NOT NULL,
+	[category_desc]  [varchar](15) NOT NULL,
+CONSTRAINT [category_ident] PRIMARY KEY CLUSTERED
+(
+	[ID_category] ASC
+) ON [PRIMARY]
+)
+GO
+
+/****** Object:  Table [dbo].[provider]    Script Date: 4/18/2024 12:51:03 PM ******/
+
+CREATE TABLE [dbo].[D_provider](
+	[ID_provider] [int] IDENTITY(1,1) NOT NULL,
+	[provider_no] [int] NOT NULL,
+	[provider_name] [varchar](15)  NOT NULL,
+	[city] [varchar](15)  NOT NULL,
+	[country] [varchar](15)  NOT NULL,
+	[state_prov] [varchar](15) NULL,
+	[region_name] [varchar](15) NOT NULL,
+CONSTRAINT [provider_ident] PRIMARY KEY CLUSTERED
+(
+	[ID_provider] ASC
+) ON [PRIMARY]
+)
+
+
+
+/****** Object:  Table [dbo].[corporation]    Script Date: 4/18/2024 12:55:48 PM ******/
+
+CREATE TABLE [dbo].[D_corporation](
+	[ID_corporation] [int] IDENTITY(1,1) NOT NULL,
+	[corp_no] [int] NOT NULL,
+	[corp_name] [varchar](15) NOT NULL,
+	[city] [varchar](15) NULL,
+	[state_prov] [varchar](15) NULL,
+	[country] [varchar](2) NULL,
+	[region_name] [varchar](15) NOT NULL,
+ CONSTRAINT [corporation_ident] PRIMARY KEY CLUSTERED 
+(
+	[ID_corporation] ASC
+) 
+)ON [PRIMARY]
+GO
+
+CREATE TABLE [dbo].[D_Date](
+	[Date] [datetime] NOT NULL,
+	[Year]  AS (datepart(year,[Date])),
+	[Semester]  AS (CONVERT([varchar](4),datepart(year,[Date]),(0))+case when datepart(month,[Date])>(6) then '2' else '1' end),
+	[Quarter]  AS (CONVERT([varchar](4),datepart(year,[Date]),(0))+datename(quarter,[Date])),
+	[Month]  AS (datepart(month,[Date])),
+	[Month_Name]  AS (upper(substring(datename(month,[Date]),(1),(1)))+substring(datename(month,[Date]),(2),len(datename(month,[Date])))),
+	[Week]  AS ((CONVERT([varchar](4),datepart(year,[Date]),(0))+replicate('0',(2)-len(datepart(week,[Date]))))+CONVERT([nvarchar](2),datepart(week,[Date]),(0))),
+	[Day]  AS (datepart(day,[Date])),
+	[Day_of_Week]  AS (datename(weekday,[Date])),
+	[Day_of_Year]  AS (datename(dayofyear,[Date])),
+	[Jour_Ferie] [char](3) NULL,
+	[FiscalWeek] [int] NULL,
+ CONSTRAINT [PK_D_Date] PRIMARY KEY CLUSTERED 
+(
+	[Date] ASC
+)
+) ON [PRIMARY]
+
+
+/*CREATE TABLE [F_payments] (
+[Date] [datetime] NOT NULL,
+[ID_member] [int] NOT NULL,
+[ID_category] [int] NOT NULL,
+[ID_provider] [int] NOT NULL,
+[Total_paiments] [money] NULL,
+CONSTRAINT [PK_payments] PRIMARY KEY
+(
+[Date] ASC,
+[ID_member] ASC,
+[ID_category] ASC,
+[ID_provider] ASC
+)ON [PRIMARY]
+)*/
+CREATE TABLE [F_payments] (
+[Date] [datetime] NOT NULL,
+[ID_member] [int] NOT NULL,
+[ID_category] [int] NOT NULL,
+[ID_provider] [int] NOT NULL,
+[Total_paiments] [money] NULL,
+)
+
+
+ALTER TABLE [dbo].[D_member]
+ADD CONSTRAINT [FK_member_corp] FOREIGN KEY ([corp_no]) REFERENCES [D_corporation]([corp_no]);
+ALTER TABLE [dbo].[[D_member]
+ADD CONSTRAINT [FK_member_region] FOREIGN KEY ([region_no]) REFERENCES [D_region]([region_no]);
+
+ALTER TABLE [dbo].[[D_provider]
+ADD CONSTRAINT [FK_provder_region] FOREIGN KEY ([region_no]) REFERENCES [D_region]([region_no]);
+
+ALTER TABLE [dbo].[[D_corporation]
+ADD CONSTRAINT [FK_corporation_region] FOREIGN KEY ([region_no]) REFERENCES [D_region]([region_no]);
+
+
+///************************************************************** credit_Staging
+
+CREATE TABLE [dbo].[STA_D_member](
+	[ID_member] [int] NOT NULL,
+	[member_no] [int] NOT NULL,
+	[lastname] [varchar](15) NOT NULL,
+	[firstname] [varchar](15) NOT NULL,
+	[city] [varchar](15) NULL,
+	[country] [varchar](2) NULL,
+	[state_prov] [varchar](15) NULL,
+	[region_name] [varchar](15) NOT NULL,
+	[corpo_no] [int] NULL,
+	[gender] [varchar](6) NOT NULL,
+	[nom_complet] [varchar](30) NULL,
+CONSTRAINT [member_ident] PRIMARY KEY CLUSTERED
+(
+	[ID_member] ASC
+) ON [PRIMARY]
+)
+GO
+
+
+CREATE TABLE [dbo].[STA_D_category](
+	[ID_category] [int] NOT NULL,
+	[category_no] [int] NOT NULL,
+	[category_desc]  [varchar](15) NOT NULL,
+CONSTRAINT [category_ident] PRIMARY KEY CLUSTERED
+(
+	[ID_category] ASC
+) ON [PRIMARY]
+)
+GO
+
+CREATE TABLE [dbo].[STA_D_provider](
+	[ID_provider] [int] NOT NULL,
+	[provider_no] [int] NOT NULL,
+	[provider_name] [varchar](15)  NOT NULL,
+	[city] [varchar](15)  NOT NULL,
+	[state_prov] [varchar](15) NULL,
+	[country] [varchar](15)  NOT NULL,
+	[region_name] [varchar](15) NOT NULL,
+CONSTRAINT [provider_ident] PRIMARY KEY CLUSTERED
+(
+	[ID_provider] ASC
+) ON [PRIMARY]
+)
+
+
+
+
+CREATE TABLE [dbo].[STA_D_corporation](
+	[ID_corporation] [int] NOT NULL,
+	[corp_no] [int] NOT NULL,
+	[corp_name] [varchar](15) NOT NULL,
+	[city] [varchar](15) NULL,
+	[state_prov] [varchar](15) NULL,
+	[country] [varchar](2) NULL,
+	[region_name] [varchar](15) NOT NULL,
+ CONSTRAINT [corporation_ident] PRIMARY KEY CLUSTERED 
+(
+	[ID_corporation] ASC
+) 
+)ON [PRIMARY]
+
+
+
+CREATE TABLE [STA_F_payments] (
+[Date] [datetime] NOT NULL,
+[ID_member] [int] NOT NULL,
+[ID_category] [int] NOT NULL,
+[ID_provider] [int] NOT NULL,
+[Total_paiments] [money] NULL,
+)
+
